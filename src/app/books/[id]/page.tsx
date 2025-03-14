@@ -18,6 +18,7 @@ export default function EditBookPage() {
   const [publishedDate, setPublishedDate] = useState("");
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(true);
+  const [editLoading, setEditLoading] = useState(false);
 
   // Fetch the book's current data when the component mounts
   useEffect(() => {
@@ -30,7 +31,9 @@ export default function EditBookPage() {
           setTitle(book.title);
           setAuthor(book.author);
           // Convert the date into YYYY-MM-DD format for the date input
-          setPublishedDate(new Date(book.publishedDate).toISOString().split("T")[0]);
+          setPublishedDate(
+            new Date(book.publishedDate).toISOString().split("T")[0]
+          );
           setSummary(book.summary || "");
         }
         setLoading(false);
@@ -41,6 +44,7 @@ export default function EditBookPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setEditLoading(true);
     const res = await fetch(`/api/books/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -48,8 +52,10 @@ export default function EditBookPage() {
     });
     const data = await res.json();
     if (data.success) {
+      setEditLoading(false);
       router.push("/books");
     }
+    setEditLoading(false);
   };
 
   if (loading) {
@@ -110,7 +116,7 @@ export default function EditBookPage() {
             type="submit"
             className="w-full bg-purple-500 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-purple-600 transition duration-300 cursor-pointer"
           >
-            Update Book
+            {loading ? "loading..." : "Update Book"}
           </button>
         </form>
       </div>

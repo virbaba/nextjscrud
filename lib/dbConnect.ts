@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-
+// this i mongo uri coming from .env file
 const MONGO_URI = process.env.MONGO_URI || "";
-
+// checking mongo uri exist or not
 if (!MONGO_URI) {
   throw new Error("Please define the MONGO_URI environment variable");
 }
@@ -14,11 +14,12 @@ if (!cached) {
 }
 
 export async function dbConnect() {
+  // if already connection exists then return exists connection 
   if (cached.conn) {
     console.log("Using existing database connection");
     return cached.conn;
   }
-
+  // otherwise created new connection
   if (!cached.promise) {
     console.log("Creating new database connection");
 

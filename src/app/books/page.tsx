@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
+// defining the type of book
 interface Book {
   _id: string;
   title: string;
@@ -12,8 +13,32 @@ interface Book {
 }
 
 export default function BooksPage() {
-  const [books, setBooks] = useState<Book[]>([]);
+  const [books, setBooks] = useState<Book[]>([]); // books state type is Book array
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Helper function to update authentication status
+  const checkAuth = () => {
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
+  };
+
+  useEffect(() => {
+    // Check auth status on component mount
+    checkAuth();
+
+    // Listen for a custom event 'authChanged' to update auth status
+    const handleAuthChanged = () => {
+      checkAuth();
+    };
+
+    window.addEventListener("authChanged", handleAuthChanged);
+    return () => {
+      window.removeEventListener("authChanged", handleAuthChanged);
+    };
+  }, []);
+
+  // this function help to fetch all books from database
   const fetchBooks = async () => {
     const res = await fetch("/api/books");
     const data = await res.json();
@@ -22,10 +47,12 @@ export default function BooksPage() {
     }
   };
 
+  // this function call only for once
   useEffect(() => {
     fetchBooks();
   }, []);
 
+  // delete book by book id
   const deleteBook = async (id: string) => {
     const res = await fetch(`/api/books/${id}`, { method: "DELETE" });
     const data = await res.json();
@@ -54,34 +81,41 @@ export default function BooksPage() {
             {books.map((book) => (
               <div
                 key={book._id}
-                className="bg-white rounded-lg shadow-md p-6 transform transition hover:scale-105"
+                className="bg-white rounded-lg shadow-md p-6 transform transition hover:scale-105 flex flex-col justify-between"
               >
-                <h2 className="text-2xl font-semibold text-gray-700 mb-2">
-                  {book.title}
-                </h2>
-                <p className="text-gray-600 mb-1">
-                  <span className="font-medium">Author:</span> {book.author}
-                </p>
-                <p className="text-gray-600 mb-1">
-                  <span className="font-medium">Published:</span>{" "}
-                  {new Date(book.publishedDate).toLocaleDateString()}
-                </p>
-                <p className="text-gray-600 mb-4">{book.summary}</p>
-                <div className="flex justify-between">
-                  <Link
-                    href={`/books/${book._id}`}
-                    className="flex items-center space-x-2 bg-green-500 hover:bg-green-600 transition text-white px-4 py-2 rounded-lg cursor-pointer"
-                  >
-                    <FaEdit />
-                    <span>Edit</span>
-                  </Link>
-                  <button
-                    onClick={() => deleteBook(book._id)}
-                    className="flex items-center space-x-2 bg-red-500 hover:bg-red-600 transition text-white px-4 py-2 rounded-lg cursor-pointer"
-                  >
-                    <FaTrash />
-                    <span>Delete</span>
-                  </button>
+                <div>
+                  <h2 className="text-2xl font-semibold text-gray-700 mb-2">
+                    {book.title}
+                  </h2>
+                  <p className="text-gray-600 mb-1">
+                    <span className="font-medium">Author:</span> {book.author}
+                  </p>
+                  <p className="text-gray-600 mb-1">
+                    <span className="font-medium">Published:</span>{" "}
+                    {new Date(book.publishedDate).toLocaleDateString()}
+                  </p>
+                  <p className="text-gray-600 mb-4">{book.summary}</p>
+                </div>
+
+                <div>
+                  {isAuthenticated && (
+                    <div className="flex justify-between">
+                      <Link
+                        href={`/books/${book._id}`}
+                        className="flex items-center space-x-2 bg-green-500 hover:bg-green-600 transition text-white px-4 py-2 rounded-lg cursor-pointer"
+                      >
+                        <FaEdit />
+                        <span>Edit</span>
+                      </Link>
+                      <button
+                        onClick={() => deleteBook(book._id)}
+                        className="flex items-center space-x-2 bg-red-500 hover:bg-red-600 transition text-white px-4 py-2 rounded-lg cursor-pointer"
+                      >
+                        <FaTrash />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

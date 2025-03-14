@@ -1,5 +1,6 @@
 // /src/app/page.tsx
 "use client";
+// this one help to navigate to one page to another
 import { useRouter } from "next/navigation";
 
 export default function Home() {

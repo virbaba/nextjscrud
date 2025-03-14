@@ -1,7 +1,7 @@
-// These styles apply to every route in the application
-import './globals.css'
 // /src/app/layout.tsx
-import { FaBook, FaGithub, FaLinkedin } from 'react-icons/fa';
+import "./globals.css";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
+import Header from "@/components/Header";
 
 export default function RootLayout({
   children,
@@ -18,45 +18,8 @@ export default function RootLayout({
         />
       </head>
       <body className="flex flex-col min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-white shadow-md">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <FaBook className="text-blue-500 text-3xl animate-pulse" />
-              <h1 className="text-2xl font-bold text-gray-800">
-                Book Club Library
-              </h1>
-            </div>
-            <nav>
-              <ul className="flex space-x-4">
-                <li>
-                  <a
-                    href="/"
-                    className="text-gray-600 hover:text-gray-900 transition"
-                  >
-                    Home
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/books"
-                    className="text-gray-600 hover:text-gray-900 transition"
-                  >
-                    Books
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/books/new"
-                    className="text-gray-600 hover:text-gray-900 transition"
-                  >
-                    Add Book
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </header>
+        {/* Dynamic Header */}
+        <Header />
 
         {/* Main content */}
         <main className="flex-grow">{children}</main>

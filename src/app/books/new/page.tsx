@@ -1,25 +1,57 @@
 "use client";
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function NewBookPage() {
   const router = useRouter();
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-  const [publishedDate, setPublishedDate] = useState('');
-  const [summary, setSummary] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+  const [publishedDate, setPublishedDate] = useState("");
+  const [summary, setSummary] = useState("");
+  const token = localStorage.getItem("token");
+
+  // Check if the user is authenticated when the component mounts
+  useEffect(() => {
+    if (!token) {
+      // Redirect to login if no token is found
+      router.push("/login");
+    } else {
+      setIsAuthenticated(true);
+    }
+    setAuthChecked(true);
+  }, [router, token]);
+
+  // Show a loading state until the auth check is done
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <p className="text-xl text-gray-700">Checking authentication...</p>
+      </div>
+    );
+  }
+
+  // If the user is not authenticated, nothing is rendered (they should be redirected)
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch('/api/books', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    setLoading(true);
+    const res = await fetch("/api/books", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title, author, publishedDate, summary }),
     });
     const data = await res.json();
     if (data.success) {
-      router.push('/books');
+      setLoading(false);
+      router.push("/books");
     }
+    setLoading(false);
   };
 
   return (
@@ -72,7 +104,7 @@ export default function NewBookPage() {
             type="submit"
             className="w-full bg-blue-700 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-blue-600 transition duration-300 cursor-pointer"
           >
-            Submit
+            {loading ? "loading..." : "Submit"}
           </button>
         </form>
       </div>
