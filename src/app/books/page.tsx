@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
-// defining the type of book
+// Defining the type of book
 interface Book {
   _id: string;
   title: string;
@@ -13,8 +13,8 @@ interface Book {
 }
 
 export default function BooksPage() {
-  const [books, setBooks] = useState<Book[]>([]); // books state type is Book array
-
+  const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Helper function to update authentication status
@@ -38,21 +38,23 @@ export default function BooksPage() {
     };
   }, []);
 
-  // this function help to fetch all books from database
+  // Fetch all books from the database
   const fetchBooks = async () => {
+    setLoading(true);
     const res = await fetch("/api/books");
     const data = await res.json();
     if (data.success) {
       setBooks(data.data);
     }
+    setLoading(false);
   };
 
-  // this function call only for once
+  // Fetch books on component mount
   useEffect(() => {
     fetchBooks();
   }, []);
 
-  // delete book by book id
+  // Delete a book by its id
   const deleteBook = async (id: string) => {
     const res = await fetch(`/api/books/${id}`, { method: "DELETE" });
     const data = await res.json();
@@ -74,7 +76,9 @@ export default function BooksPage() {
           </Link>
         </div>
 
-        {books.length === 0 ? (
+        {loading ? (
+          <div className="text-center text-white text-xl">Loading...</div>
+        ) : books.length === 0 ? (
           <div className="text-center text-gray-500">No books available.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -97,26 +101,24 @@ export default function BooksPage() {
                   <p className="text-gray-600 mb-4">{book.summary}</p>
                 </div>
 
-                <div>
-                  {isAuthenticated && (
-                    <div className="flex justify-between">
-                      <Link
-                        href={`/books/${book._id}`}
-                        className="flex items-center space-x-2 bg-green-500 hover:bg-green-600 transition text-white px-4 py-2 rounded-lg cursor-pointer"
-                      >
-                        <FaEdit />
-                        <span>Edit</span>
-                      </Link>
-                      <button
-                        onClick={() => deleteBook(book._id)}
-                        className="flex items-center space-x-2 bg-red-500 hover:bg-red-600 transition text-white px-4 py-2 rounded-lg cursor-pointer"
-                      >
-                        <FaTrash />
-                        <span>Delete</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
+                {isAuthenticated && (
+                  <div className="flex justify-between">
+                    <Link
+                      href={`/books/${book._id}`}
+                      className="flex items-center space-x-2 bg-green-500 hover:bg-green-600 transition text-white px-4 py-2 rounded-lg cursor-pointer"
+                    >
+                      <FaEdit />
+                      <span>Edit</span>
+                    </Link>
+                    <button
+                      onClick={() => deleteBook(book._id)}
+                      className="flex items-center space-x-2 bg-red-500 hover:bg-red-600 transition text-white px-4 py-2 rounded-lg cursor-pointer"
+                    >
+                      <FaTrash />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
