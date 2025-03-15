@@ -30,7 +30,7 @@ export default function RootLayout({
             <p className="mb-2">Developed by Virender Singh</p>
             <div className="flex justify-center space-x-4">
               <a
-                href="https://github.com/virbaba"
+                href="https://github.com/virbaba/nextjscrud"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-gray-300 transition transform hover:scale-110"
