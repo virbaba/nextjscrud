@@ -13,13 +13,16 @@ interface Book {
 }
 
 export default function BooksPage() {
+  // arrays of book
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
 
   // Helper function to update authentication status
   const checkAuth = () => {
     const token = localStorage.getItem("token");
+    setToken(token);
     setIsAuthenticated(!!token);
   };
 
@@ -41,6 +44,7 @@ export default function BooksPage() {
   // Fetch all books from the database
   const fetchBooks = async () => {
     setLoading(true);
+    // calling the api to fetch all books from database
     const res = await fetch("/api/books");
     const data = await res.json();
     if (data.success) {
@@ -56,7 +60,16 @@ export default function BooksPage() {
 
   // Delete a book by its id
   const deleteBook = async (id: string) => {
-    const res = await fetch(`/api/books/${id}`, { method: "DELETE" });
+    // Ensure token is available before making the request
+    if (!token) return;
+
+    const res = await fetch(`/api/books/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Send token in Authorization header to verify a authenticate user want to delete a book
+      },
+    });
     const data = await res.json();
     if (data.success) {
       setBooks(books.filter((book) => book._id !== id));

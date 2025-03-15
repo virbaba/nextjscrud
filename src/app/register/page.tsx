@@ -17,6 +17,7 @@ export default function RegisterPage() {
     setError("");
     setSuccess("");
     setLoading(true);
+    // calling API for register
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -27,9 +28,7 @@ export default function RegisterPage() {
     if (data.success) {
       setSuccess("Registration successful! Redirecting to login...");
       setLoading(false);
-      setTimeout(() => {
-        router.push("/login");
-      }, 1500);
+      router.push("/login");
     } else {
       setError(data.message || "Registration failed");
     }

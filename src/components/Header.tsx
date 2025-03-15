@@ -1,14 +1,18 @@
+// this directive define this is client component mean page will render at client side. It run into the browser like regular react component
 "use client";
 import { useEffect, useState } from "react";
+// provide the Link to navigate
 import Link from "next/link";
 import { FaBook, FaUserCircle } from "react-icons/fa";
 
 export default function Header() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Helper function to update authentication status
+  //function to update authentication status
   const checkAuth = () => {
+    // getting the token from localstorage
     const token = localStorage.getItem("token");
+    // !! help to convert value into boolean explicitly
     setIsAuthenticated(!!token);
   };
 
@@ -21,7 +25,10 @@ export default function Header() {
       checkAuth();
     };
 
+    // auth changed event help to know is user login successfully or not
     window.addEventListener("authChanged", handleAuthChanged);
+
+    // remove the event when component unmount
     return () => {
       window.removeEventListener("authChanged", handleAuthChanged);
     };

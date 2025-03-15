@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 
+// type of book data
 interface Book {
   _id: string;
   title: string;
@@ -19,35 +20,62 @@ export default function EditBookPage() {
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(true);
   const [editLoading, setEditLoading] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
 
-  // Fetch the book's current data when the component mounts
+  // Helper function to update authentication status
+  const checkAuth = () => {
+    const token = localStorage.getItem("token");
+    setToken(token);
+  };
+
   useEffect(() => {
-    if (id) {
+    // Check auth status on component mount
+    checkAuth();
+  }, []);
+
+  // Fetch the book's current data when the component mounts or when token is set
+  useEffect(() => {
+    if (id && token) {
       const fetchBook = async () => {
-        const res = await fetch(`/api/books/${id}`);
-        const data = await res.json();
-        if (data.success) {
-          const book: Book = data.data;
-          setTitle(book.title);
-          setAuthor(book.author);
-          // Convert the date into YYYY-MM-DD format for the date input
-          setPublishedDate(
-            new Date(book.publishedDate).toISOString().split("T")[0]
-          );
-          setSummary(book.summary || "");
+        try {
+          const res = await fetch(`/api/books/${id}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // Sending token here
+            },
+          });
+          const data = await res.json();
+          if (data.success) {
+            const book: Book = data.data;
+            setTitle(book.title);
+            setAuthor(book.author);
+            // Convert the date into YYYY-MM-DD format for the date input
+            setPublishedDate(
+              new Date(book.publishedDate).toISOString().split("T")[0]
+            );
+            setSummary(book.summary || "");
+          }
+        } catch (error) {
+          console.error("Error fetching book:", error);
+        } finally {
+          setLoading(false);
         }
-        setLoading(false);
       };
       fetchBook();
     }
-  }, [id]);
+  }, [id, token]);
 
+  // handle submit function to edit the book details
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setEditLoading(true);
     const res = await fetch(`/api/books/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Sending token for update as well
+      },
       body: JSON.stringify({ title, author, publishedDate, summary }),
     });
     const data = await res.json();
@@ -116,7 +144,7 @@ export default function EditBookPage() {
             type="submit"
             className="w-full bg-purple-500 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-purple-600 transition duration-300 cursor-pointer"
           >
-            {loading ? "loading..." : "Update Book"}
+            {editLoading ? "Loading..." : "Update Book"}
           </button>
         </form>
       </div>

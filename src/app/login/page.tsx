@@ -1,6 +1,7 @@
 // /src/app/login/page.tsx
 "use client";
 import { useState } from "react";
+// provide router to navigate to another page from current page
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -25,9 +26,11 @@ export default function LoginPage() {
     const data = await res.json();
     if (data.success) {
       setLoading(false);
-      // After a successful login in your /login page
+      // set the token to local storage after login
       localStorage.setItem("token", data.token);
-      window.dispatchEvent(new Event("authChanged")); // Notify listeners that auth state changed
+      // Notify listeners that auth state changed
+      window.dispatchEvent(new Event("authChanged")); 
+      // After a successful login in your /login page
       router.push("/books");
     } else {
       setError(data.message);

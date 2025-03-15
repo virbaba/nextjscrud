@@ -5,7 +5,9 @@ import { dbConnect } from "../../../../../lib/dbConnect";
 import User from "../../models/User";
 
 export async function POST(request: Request) {
+  // checking db is connected or not
   await dbConnect();
+  // fetching email and password from request object
   const { email, password } = await request.json();
 
   if (!email || !password) {
@@ -24,7 +26,7 @@ export async function POST(request: Request) {
     );
   }
 
-  // Hash the password
+  // Hash the password, performing hashing algo for 10 times over the passoword
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
