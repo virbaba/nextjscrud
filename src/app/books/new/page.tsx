@@ -11,7 +11,12 @@ export default function NewBookPage() {
   const [author, setAuthor] = useState("");
   const [publishedDate, setPublishedDate] = useState("");
   const [summary, setSummary] = useState("");
-  const token = localStorage.getItem("token");
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    // fetch the user token from local storage
+    setToken(localStorage.getItem("token"));
+  }, []);
 
   // Check if the user is authenticated when the component mounts
   useEffect(() => {
