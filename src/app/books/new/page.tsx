@@ -11,23 +11,17 @@ export default function NewBookPage() {
   const [author, setAuthor] = useState("");
   const [publishedDate, setPublishedDate] = useState("");
   const [summary, setSummary] = useState("");
-  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    // fetch the user token from local storage
-    setToken(localStorage.getItem("token"));
-  }, []);
-
-  // Check if the user is authenticated when the component mounts
-  useEffect(() => {
-    if (!token) {
-      // Redirect to login if no token is found
-      router.push("/login");
-    } else {
+    // Retrieve the token and check authentication in one effect
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
       setIsAuthenticated(true);
+    } else {
+      router.push("/login");
     }
     setAuthChecked(true);
-  }, [router, token]);
+  }, [router]);
 
   // Show a loading state until the auth check is done
   if (!authChecked) {
@@ -53,7 +47,6 @@ export default function NewBookPage() {
     });
     const data = await res.json();
     if (data.success) {
-      setLoading(false);
       router.push("/books");
     }
     setLoading(false);
